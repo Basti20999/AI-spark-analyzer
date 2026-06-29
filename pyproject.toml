@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-spark-analyzer"
+version = "0.1.0"
+description = "AI-powered analysis of spark profiler reports to diagnose Minecraft server lag spikes"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "AI Spark Analyzer contributors" }]
+keywords = ["minecraft", "spark", "profiler", "performance", "lag", "claude", "anthropic"]
+dependencies = ["anthropic>=0.49.0"]
+
+[project.urls]
+Homepage = "https://spark.lucko.me"
+"spark docs" = "https://spark.lucko.me/docs/guides/Finding-lag-spikes"
+
+[project.scripts]
+spark-analyzer = "spark_analyzer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

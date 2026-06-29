@@ -1,0 +1,3 @@
+# Runtime dependency. The fetcher and parser use only the standard library;
+# the Anthropic SDK is needed for the AI diagnosis (--no-ai works without it).
+anthropic>=0.49.0

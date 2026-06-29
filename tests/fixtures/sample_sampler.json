@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "samplerMode": "EXECUTION",
+    "numberOfTicks": 100,
+    "interval": 4000,
+    "comment": "synthetic fixture",
+    "platformMetadata": {
+      "name": "Paper",
+      "version": "git-Paper-196",
+      "minecraftVersion": "1.20.4"
+    },
+    "platformStatistics": {
+      "tps": { "last1m": 14.2, "last5m": 17.8, "last15m": 19.1, "gameTargetTps": 20 },
+      "mspt": { "last1m": { "mean": 70.4, "median": 48.0, "max": 412.0, "percentile95": 210.0 } }
+    }
+  },
+  "threads": [
+    {
+      "name": "Server thread",
+      "childrenRefs": [0],
+      "children": [
+        { "className": "net.minecraft.server.MinecraftServer", "methodName": "tick", "times": [1000.0], "childrenRefs": [1, 2] },
+        { "className": "com.example.LaggyPlugin", "methodName": "onServerTick", "times": [700.0], "childrenRefs": [3] },
+        { "className": "net.minecraft.world.World", "methodName": "tickEntities", "times": [300.0], "childrenRefs": [] },
+        { "className": "com.example.LaggyPlugin", "methodName": "scanLoadedChunks", "times": [700.0], "childrenRefs": [] }
+      ]
+    },
+    {
+      "name": "Async Chunk Loader #1",
+      "childrenRefs": [0],
+      "children": [
+        { "className": "net.minecraft.world.chunk.ChunkLoader", "methodName": "load", "times": [120.0], "childrenRefs": [] }
+      ]
+    }
+  ],
+  "classSources": {
+    "com.example.LaggyPlugin": "LaggyPlugin"
+  },
+  "timeWindows": [0],
+  "timeWindowStatistics": {
+    "0": { "ticks": 100, "tps": 14.2, "msptMedian": 48.0, "msptMax": 412.0, "duration": 5000, "players": 30, "entities": 5400, "chunks": 900 }
+  }
+}
