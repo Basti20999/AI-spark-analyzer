@@ -11,7 +11,14 @@ requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "AI Spark Analyzer contributors" }]
 keywords = ["minecraft", "spark", "profiler", "performance", "lag", "claude", "anthropic"]
-dependencies = ["anthropic>=0.49.0"]
+# Core has no third-party deps: fetch/parse/analyze use only the standard
+# library, and the AI diagnosis can run through the Claude Code CLI (your
+# Pro/Max subscription) with nothing extra installed. The Anthropic SDK is
+# only needed for the API backend — install it via the "api" extra.
+dependencies = []
+
+[project.optional-dependencies]
+api = ["anthropic>=0.49.0"]
 
 [project.urls]
 Homepage = "https://spark.lucko.me"

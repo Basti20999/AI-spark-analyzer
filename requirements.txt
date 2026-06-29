@@ -1,3 +1,8 @@
-# Runtime dependency. The fetcher and parser use only the standard library;
-# the Anthropic SDK is needed for the AI diagnosis (--no-ai works without it).
+# The core tool (fetch / parse / analyze) needs NO third-party packages.
+# The AI diagnosis can run for free through the Claude Code CLI using your
+# Claude Pro/Max subscription (install Claude Code, then `claude login`) — no
+# package below is required for that path.
+#
+# Only install this if you want the *API* backend (--backend api, needs an
+# ANTHROPIC_API_KEY). Equivalent to: pip install -e ".[api]"
 anthropic>=0.49.0

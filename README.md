@@ -42,21 +42,58 @@ the model makes is grounded in the computed metrics it's handed.
 
 ## Install
 
-Requires Python 3.10+.
+Requires Python 3.10+. The core tool has **no third-party dependencies** — the
+fetch/parse/analyze pipeline uses only the standard library.
 
 ```bash
 pip install -e .
-# or, without installing the package:
-pip install -r requirements.txt
 ```
 
-Set your Anthropic API key for the AI diagnosis (the deterministic analysis
-works without it):
+## Getting the AI diagnosis
+
+The deterministic analysis always works on its own. For the AI diagnosis you
+have three options — pick whichever matches what you have:
+
+### Option A — Claude Pro / Max subscription (no API key) ✅ recommended
+
+If you already pay for Claude (Pro or Max), you can use that subscription
+directly — **no API key and no per-call API billing.** The analyzer drives the
+[Claude Code CLI](https://claude.com/claude-code) under the hood, which signs in
+with your subscription.
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-# or copy .env.example to .env
+# one-time setup
+npm install -g @anthropic-ai/claude-code   # install the Claude Code CLI
+claude login                               # sign in with your Pro/Max account
+
+# then just run the analyzer (auto-detects the CLI)
+spark-analyzer uksGhFmkWd
+# or force it explicitly:
+spark-analyzer uksGhFmkWd --backend cli
 ```
+
+### Option B — Anthropic API key (pay-as-you-go)
+
+Best for servers / CI. Install the API extra and set a key:
+
+```bash
+pip install -e ".[api]"          # adds the Anthropic SDK
+export ANTHROPIC_API_KEY=sk-ant-...   # or copy .env.example to .env
+spark-analyzer uksGhFmkWd --backend api
+```
+
+### Option C — copy/paste into claude.ai (any plan, even free)
+
+No CLI, no key — just print a ready-made prompt and paste it into
+[claude.ai](https://claude.ai):
+
+```bash
+spark-analyzer uksGhFmkWd --print-prompt    # prints the deterministic analysis
+                                            # wrapped in an expert prompt
+```
+
+> By default the backend is `auto`: it uses the API if `ANTHROPIC_API_KEY` is
+> set, otherwise the Claude Code CLI (your subscription) if it's installed.
 
 ## Usage
 
@@ -78,7 +115,9 @@ python -m spark_analyzer uksGhFmkWd
 
 | Flag | Description |
 | --- | --- |
-| `--no-ai` | Skip Claude; print the deterministic analysis only (no API key needed). |
+| `--backend {auto,cli,api}` | How to reach Claude. `cli` = your Pro/Max subscription via the Claude Code CLI; `api` = `ANTHROPIC_API_KEY`; `auto` (default) prefers a key if set, else the CLI. |
+| `--print-prompt` | Print a ready-to-paste prompt for claude.ai and exit (works with any plan, even free). |
+| `--no-ai` | Skip Claude; print the deterministic analysis only (no account needed). |
 | `--json` | Emit the analysis as JSON instead of a Markdown report. |
 | `-o, --output PATH` | Write the Markdown report to a file. |
 | `--thread NAME` | Focus on a thread whose name contains `NAME` (default: the busiest "Server thread"). |
@@ -137,5 +176,7 @@ offline with no API key.
 ## Credits
 
 Built on the data and documentation of **[spark](https://spark.lucko.me)** by
-lucko. AI diagnosis powered by the [Anthropic Claude API](https://docs.claude.com).
-Not affiliated with the spark project.
+lucko. AI diagnosis powered by **[Claude](https://claude.com)** — via your Claude
+Pro/Max subscription (through the [Claude Code CLI](https://claude.com/claude-code))
+or the [Anthropic API](https://docs.claude.com). Not affiliated with the spark
+project.

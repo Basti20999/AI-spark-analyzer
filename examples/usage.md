@@ -36,16 +36,35 @@ python -m spark_analyzer tests/fixtures/sample_sampler.json --json | jq '.plugin
 
 ## Full AI diagnosis
 
-With `ANTHROPIC_API_KEY` set:
+### With a Claude Pro/Max subscription (no API key)
+
+Install the [Claude Code CLI](https://claude.com/claude-code), sign in once
+with `claude login`, then let the analyzer use your subscription:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-python -m spark_analyzer tests/fixtures/sample_sampler.json -o report.md
+python -m spark_analyzer tests/fixtures/sample_sampler.json --backend cli -o report.md
 ```
 
-The report ends with an **AI diagnosis** section: a verdict, root-cause
-analysis, the suspect plugin list (with the percentages cited as evidence),
-and prioritized recommendations.
+### With an Anthropic API key
+
+```bash
+pip install -e ".[api]"
+export ANTHROPIC_API_KEY=sk-ant-...
+python -m spark_analyzer tests/fixtures/sample_sampler.json --backend api -o report.md
+```
+
+### No account? Paste it into claude.ai
+
+```bash
+python -m spark_analyzer tests/fixtures/sample_sampler.json --print-prompt
+```
+
+Copy the output into [claude.ai](https://claude.ai) and Claude will reply with
+the diagnosis.
+
+Either way the report ends with an **AI diagnosis** section: a verdict,
+root-cause analysis, the suspect plugin list (with the percentages cited as
+evidence), and prioritized recommendations.
 
 ## Against a real report
 

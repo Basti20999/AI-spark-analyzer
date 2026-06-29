@@ -79,8 +79,11 @@ def render(result: AnalysisResult, ai_text: str | None = None) -> str:
             "",
             "---",
             "",
-            "_AI diagnosis skipped. Set `ANTHROPIC_API_KEY` and re-run without "
-            "`--no-ai` for an expert root-cause analysis._",
+            "_AI diagnosis skipped. Re-run without `--no-ai` using your Claude "
+            "Pro/Max subscription (`--backend cli`, requires the Claude Code "
+            "CLI) or an `ANTHROPIC_API_KEY` (`--backend api`) for an expert "
+            "root-cause analysis. No account? `--print-prompt` gives you a "
+            "prompt to paste into claude.ai._",
         ]
 
     return "\n".join(lines) + "\n"

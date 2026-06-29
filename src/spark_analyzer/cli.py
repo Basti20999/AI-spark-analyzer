@@ -7,7 +7,13 @@ import json
 import sys
 
 from . import __version__
-from .ai import DEFAULT_MODEL, has_api_key, run_analysis
+from .ai import (
+    DEFAULT_MODEL,
+    build_manual_prompt,
+    choose_backend,
+    run_analysis,
+    run_analysis_cli,
+)
 from .analysis import analysis_to_dict, analyze, summarize_for_ai
 from .fetcher import FetchError, fetch
 from .parser import parse_profile
@@ -25,7 +31,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("target", help="spark code, viewer URL, or local .json file")
     parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Claude model (default: {DEFAULT_MODEL})")
+    parser.add_argument(
+        "--backend",
+        choices=("auto", "cli", "api"),
+        default="auto",
+        help=(
+            "AI backend: 'cli' uses the Claude Code CLI with your Pro/Max "
+            "subscription (no API key needed); 'api' uses ANTHROPIC_API_KEY; "
+            "'auto' (default) picks api if a key is set, else the cli."
+        ),
+    )
     parser.add_argument("--no-ai", action="store_true", help="skip the Claude call; print deterministic analysis only")
+    parser.add_argument(
+        "--print-prompt",
+        action="store_true",
+        help="print a ready-to-paste prompt for claude.ai (any plan) and exit",
+    )
     parser.add_argument("--output", "-o", metavar="PATH", help="write the Markdown report to a file")
     parser.add_argument("--json", action="store_true", help="print the analysis as JSON instead of a report")
     parser.add_argument("--thread", metavar="NAME", help="focus on a thread whose name contains NAME")
@@ -69,19 +90,31 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(analysis_to_dict(result), indent=2))
         return 0
 
+    if args.print_prompt:
+        print(build_manual_prompt(summarize_for_ai(result)))
+        return 0
+
     ai_text: str | None = None
     if not args.no_ai:
-        if not has_api_key():
+        backend = choose_backend(args.backend)
+        if backend == "none":
             print(
-                "note: ANTHROPIC_API_KEY not set — skipping AI diagnosis. "
-                "Set it (or pass --no-ai) to silence this.",
+                "note: no AI backend available — skipping AI diagnosis. Either:\n"
+                "  - install Claude Code and run `claude login` to use your "
+                "Pro/Max subscription (then --backend cli), or\n"
+                "  - set ANTHROPIC_API_KEY for the API, or\n"
+                "  - re-run with --print-prompt to copy a prompt for claude.ai.\n"
+                "Pass --no-ai to silence this.",
                 file=sys.stderr,
             )
         else:
             try:
                 summary = summarize_for_ai(result)
-                ai_text = run_analysis(summary, model=args.model)
-            except Exception as exc:  # network / API / SDK errors shouldn't lose the report
+                if backend == "cli":
+                    ai_text = run_analysis_cli(summary, model=args.model)
+                else:
+                    ai_text = run_analysis(summary, model=args.model)
+            except Exception as exc:  # network / API / SDK / CLI errors shouldn't lose the report
                 print(f"warning: AI diagnosis failed ({exc})", file=sys.stderr)
 
     report = render(result, ai_text)
